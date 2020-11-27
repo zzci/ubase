@@ -27,7 +27,7 @@ done
 
 [ "$1" = "run" ] && {
     docker rm -f $NAME
-    docker run -tid -v $PWD/work:/work -p 8888:8888 --hostname $NAME --name  $NAME $NAME
+    docker run -tid -v $PWD/work:/work --hostname $NAME --name  $NAME $NAME
     if [ "$2" != "" ]; then
         docker exec -ti $NAME $2
     fi
