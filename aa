@@ -1,0 +1,40 @@
+#!/bin/sh
+NAME="ubase"
+EXEC="bash"
+
+## check docker running.
+docker_state=$(docker info >/dev/null 2>&1)
+while [ $? -ne 0 ]
+do
+    echo "Docker does not seem to be running, sleep 2.."
+    sleep 2
+done
+
+[ "$1" = "" ] && {
+    docker build --rm -t $NAME . 
+}
+
+[ "$1" = "rm" ] && {
+    docker rm -f $NAME
+}
+
+[ "$1" = "e" ] && {
+    if [ "$2" != "" ]; then
+        EXEC=$2
+    fi
+    docker exec -ti $NAME $EXEC
+}
+
+[ "$1" = "run" ] && {
+    docker rm -f $NAME
+    docker run -tid -v $PWD/work:/work -p 8888:8888 --hostname $NAME --name  $NAME $NAME
+    if [ "$2" != "" ]; then
+        docker exec -ti $NAME $2
+    fi
+}
+
+[ "$1" = "pack" ] && {
+    docker save $NAME | gzip > $NAME.gz
+}
+
+exit 0

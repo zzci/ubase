@@ -1,0 +1,17 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: push
+  image: plugins/docker
+  settings:
+    dockerfile: Dockerfile
+    repo: zzci/ubase
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    target:
+    - push
