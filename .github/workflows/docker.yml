@@ -3,7 +3,7 @@ name: docker-build-push
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 4 * * 0'
+    - cron:  '0 0 20 * *'
 env:
   IMAGE_NAME: zzci/ubase
 
@@ -22,7 +22,7 @@ jobs:
           [ "$VERSION" == "main" ] && VERSION=latest
           Build="$IMAGE_NAME:$VERSION"
 
-          Date=`date "+%Y%m%d-%H"`
+          Date=`date "+%Y%m%d"`
           Date="$IMAGE_NAME:$Date"
 
           echo "::set-output name=DATE::$Date"
