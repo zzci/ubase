@@ -20,10 +20,11 @@ jobs:
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "main" ] && VERSION=latest
-          
           Build="$IMAGE_NAME:$VERSION"
+
           Date=`date "+%Y%m%d-%H"`
-          
+          Date="$IMAGE_NAME:$Date"
+
           echo "::set-output name=DATE::$Date"
           echo "::set-output name=BUILD::$Build"
           
