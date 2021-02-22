@@ -4,6 +4,10 @@ WORKDIR /work
 
 ENV PATH=$PATH:/build/bin:/work/bin
 
+COPY --from=zzci/init / /
+
+ADD rootfs /
+
 RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     #
     # change apt source
@@ -24,12 +28,12 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     echo "Set disable_coredump false" >> /etc/sudo.conf && \
     #
     # clean
-    apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \
+    apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \    
+    #
+    # fix dir permissions
+    chmod -R 0755 /root /build \
     #
     # build time
     date "+%Y-%m-%d %H:%M:%S" > /.build_time.log
-
-COPY --from=zzci/init / /
-ADD rootfs /
 
 CMD ["/start.sh"]
