@@ -31,7 +31,7 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \    
     #
     # fix dir permissions
-    chmod -R 0755 /root /build \
+    chmod -R 0755 /root /build && \
     #
     # build time
     date "+%Y-%m-%d %H:%M:%S" > /.build_time.log
