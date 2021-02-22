@@ -10,7 +10,7 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     #sed -i 's@http://archive.ubuntu.com/ubuntu/@mirror://mirrors.ubuntu.com/mirrors.txt@'  /etc/apt/sources.list && \
     apt-get -y install --no-install-recommends \
     apt-utils ca-certificates vim-tiny iproute2 net-tools uuid-runtime \
-    install inetutils-telnet inetutils-ftp inetutils-ping curl wget whois netbase \
+    inetutils-telnet inetutils-ftp inetutils-ping curl wget whois netbase \
     jq tree zsh git unzip xz-utils zip sudo locales tmux gnupg openssh-server openssh-client && \
     #
     # locale-gen
