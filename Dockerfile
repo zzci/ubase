@@ -11,7 +11,7 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     # change apt source
     #sed -i 's@http://archive.ubuntu.com/ubuntu/@mirror://mirrors.ubuntu.com/mirrors.txt@'  /etc/apt/sources.list && \
     apt-get -y install --no-install-recommends \
-    apt-utils ca-certificates vim-tiny iproute2 net-tools uuid-runtime \
+    apt-utils ca-certificates apt-transport-https vim-tiny iproute2 net-tools uuid-runtime \
     inetutils-telnet inetutils-ftp inetutils-ping curl wget whois netbase \
     jq tree zsh git unzip xz-utils zip sudo locales tmux gnupg openssh-server openssh-client && \
     #
