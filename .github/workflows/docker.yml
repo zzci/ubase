@@ -25,9 +25,9 @@ jobs:
           Date=`date "+%Y%m%d"`
           Date="$IMAGE_NAME:$Date"
 
-          echo "::set-output name=DATE::$Date"
-          echo "::set-output name=BUILD::$Build"
-          
+          echo "tag-date=$Date" >> $GITHUB_ENV
+          echo "tag-build=$Build" >> $GITHUB_ENV
+
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
@@ -50,7 +50,7 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ steps.tag.outputs.DATE }}
-            ${{ steps.tag.outputs.BUILD }}
+            ${{ env.tag-date }}
+            ${{ env.tag-build }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
