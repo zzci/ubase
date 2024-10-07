@@ -8,8 +8,7 @@ COPY --from=zzci/init / /
 
 RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     #
-    # change apt source
-    #sed -i 's@http://archive.ubuntu.com/ubuntu/@mirror://mirrors.ubuntu.com/mirrors.txt@'  /etc/apt/sources.list; \
+    # some utils
     apt-get -y install --no-install-recommends \
     apt-utils ca-certificates apt-transport-https vim-tiny iproute2 net-tools uuid-runtime \
     inetutils-telnet psmisc inetutils-ftp inetutils-ping curl wget whois netbase file less iptables dnsutils \
