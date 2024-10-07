@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 WORKDIR /work
 
-ENV PATH=$PATH:/build/bin:/work/bin
+ENV PATH=$PATH:/build/bin:/build/bin/busybox:/work/bin
 
 COPY --from=zzci/init / /
 
@@ -10,9 +10,9 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     #
     # some utils
     apt-get -y install --no-install-recommends \
-    apt-utils ca-certificates apt-transport-https vim-tiny iproute2 net-tools uuid-runtime \
-    inetutils-telnet psmisc inetutils-ftp inetutils-ping curl wget whois netbase file less iptables dnsutils \
-    jq tree zsh git unzip xz-utils zip sudo locales tmux gnupg openssh-server openssh-client traceroute; \
+    apt-utils ca-certificates apt-transport-https uuid-runtime \
+    psmisc curl file less iptables dnsutils \
+    jq tree sudo locales tmux openssh-client; \
     #
     # locale-gen
     locale-gen en_US.UTF-8; \
