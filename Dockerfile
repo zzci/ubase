@@ -13,14 +13,14 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     apt-get -y install --no-install-recommends \
     apt-utils ca-certificates apt-transport-https vim-tiny iproute2 net-tools uuid-runtime \
     inetutils-telnet psmisc inetutils-ftp inetutils-ping curl wget whois netbase file less iptables dnsutils \
-    jq tree zsh git unzip xz-utils zip sudo locales tmux gnupg openssh-server openssh-client; \
+    jq tree zsh git unzip xz-utils zip sudo locales tmux gnupg openssh-server openssh-client traceroute; \
     #
     # locale-gen
     locale-gen en_US.UTF-8; \
     #
     # setup timezone
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
-    echo 'Asia/Shanghai' > /etc/timezone; \
+    ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime; \
+    echo 'Asia/Singapore' > /etc/timezone; \
     #
     # fix sudo error
     echo "Set disable_coredump false" >> /etc/sudo.conf; \
