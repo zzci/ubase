@@ -21,6 +21,10 @@ RUN apt-get -y update &&  env DEBIAN_FRONTEND="noninteractive" \
     ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime; \
     echo 'Asia/Singapore' > /etc/timezone; \
     #
+    # setup /bin/sh to /bin/bash
+    rm -rf /bin/sh; \
+    ln -s /bin/bash /bin/sh; \
+    #
     # fix sudo error
     echo "Set disable_coredump false" >> /etc/sudo.conf; \
     #
