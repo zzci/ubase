@@ -1,4 +1,4 @@
-From ubuntu 20.04
+From ubuntu 22.04
 
 ### docker hub
 
