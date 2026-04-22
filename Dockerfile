@@ -14,7 +14,7 @@ ARG TARGETARCH
 RUN apt-get -y update && env DEBIAN_FRONTEND="noninteractive" \
     apt-get -y install --no-install-recommends \
     apt-utils ca-certificates apt-transport-https uuid-runtime \
-    psmisc curl file less iptables dnsutils gnupg \
+    psmisc curl iproute2 file less iptables dnsutils gnupg \
     jq tree sudo locales tmux openssh-client unzip wget && \
     #
     # locale
