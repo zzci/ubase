@@ -1,30 +1,32 @@
+# syntax=docker/dockerfile:1.7
 FROM ubuntu:22.04
 
 WORKDIR /work
 
 ENV PATH=$PATH:/build/bin:/build/bin/busybox:/work/bin \
     LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8
+    LC_ALL=en_US.UTF-8 \
+    DEBIAN_FRONTEND=noninteractive
 
 COPY --from=zzci/init / /
 
 ARG JUST_VERSION=1.47.1
 ARG TARGETARCH
 
-RUN apt-get -y update && env DEBIAN_FRONTEND="noninteractive" \
-    apt-get -y install --no-install-recommends \
-    apt-utils ca-certificates apt-transport-https uuid-runtime \
-    psmisc curl iproute2 file less iptables dnsutils gnupg \
-    jq tree sudo locales tmux openssh-client unzip wget && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        apt-utils ca-certificates uuid-runtime \
+        psmisc procps curl wget file less iptables iproute2 dnsutils gnupg \
+        jq tree sudo locales tmux openssh-client unzip git && \
     #
     # locale
     locale-gen en_US.UTF-8 && \
     #
     # default shell
-    rm -rf /bin/sh && ln -s /bin/bash /bin/sh && \
-    #
-    # fix sudo error
-    echo "Set disable_coredump false" >> /etc/sudo.conf && \
+    ln -sf bash /bin/sh && \
     #
     # install just
     JUST_ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "x86_64") && \
@@ -32,15 +34,9 @@ RUN apt-get -y update && env DEBIAN_FRONTEND="noninteractive" \
     | tar -xzf - -C /usr/local/bin just && \
     chmod +x /usr/local/bin/just && \
     #
-    # clean
-    apt-get autoclean -y && apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* && \
-    #
     # build time
     date "+%Y-%m-%d %H:%M:%S" > /.build_time.log
 
-ADD rootfs /
-
-RUN chmod 0755 /root /build
+COPY --chmod=0755 rootfs /
 
 CMD ["/start.sh"]
