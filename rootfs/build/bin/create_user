@@ -1,25 +1,40 @@
 #!/bin/bash
+# Usage: create_user [user] [group] [uid] [gid]
+#   or via env: USER_NAME, GROUP_NAME, USER_ID, GROUP_ID
+# Default UID/GID is 1000.
+set -euo pipefail
 
-user=${1:-"tom"}
-group=${2:-"tom"}
-echo "Create user: $user Group $group"
-egrep "^$group:" /etc/group > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "create group $group"
-    groupadd $group
-else
-    echo "Group $group exist"
-fi
-egrep "^$user:" /etc/passwd > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "create user $user"
-    useradd -r -g $group -d /home/$user -s /bin/bash $user
-    usermod -aG sudo $user
-    echo "$user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-else
-    echo "User $user exist"
+user="${1:-${USER_NAME:-tom}}"
+group="${2:-${GROUP_NAME:-${user}}}"
+uid="${3:-${USER_ID:-1000}}"
+gid="${4:-${GROUP_ID:-1000}}"
+
+echo "Create user: ${user}(${uid}) group: ${group}(${gid})"
+
+# Pre-check: GID conflict with a different group name
+if existing=$(getent group "${gid}" | cut -d: -f1) && [ "${existing}" != "${group}" ]; then
+    echo "Error: GID ${gid} already used by group '${existing}'" >&2
+    exit 1
 fi
 
-mkdir -p /home/$user
-chown -R $user:$group /home/$user
+# Pre-check: UID conflict with a different user name
+if existing=$(getent passwd "${uid}" | cut -d: -f1) && [ "${existing}" != "${user}" ]; then
+    echo "Error: UID ${uid} already used by user '${existing}'" >&2
+    exit 1
+fi
 
+if getent group "${group}" >/dev/null; then
+    echo "Group ${group} exists"
+else
+    groupadd -g "${gid}" "${group}"
+fi
+
+if getent passwd "${user}" >/dev/null; then
+    echo "User ${user} exists"
+else
+    useradd -m -u "${uid}" -g "${group}" \
+        -d "/home/${user}" -s /bin/bash "${user}"
+fi
+
+echo "${user} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${user}"
+chmod 0440 "/etc/sudoers.d/${user}"

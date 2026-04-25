@@ -1,40 +1,86 @@
 #!/bin/sh
-NAME="ubase"
-EXEC="bash"
 
-## check docker running.
-docker_state=$(docker info >/dev/null 2>&1)
-while [ $? -ne 0 ]
-do
-    echo "Docker does not seem to be running, sleep 2.."
-    sleep 2
-done
+# Get the current working directory
+PWD="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 
-[ "$1" = "" ] && {
-    docker build --rm -t $NAME . 
-}
-
-[ "$1" = "rm" ] && {
-    docker rm -f $NAME
-}
-
-[ "$1" = "e" ] && {
-    if [ "$2" != "" ]; then
-        EXEC=$2
+# Copy env.example or .env.example to .env if .env does not exist
+if [ ! -f "$PWD/.env" ]; then
+    if [ -f "$PWD/env.example" ]; then
+        cp "$PWD/env.example" "$PWD/.env" 2>/dev/null
+    elif [ -f "$PWD/.env.example" ]; then
+        cp "$PWD/.env.example" "$PWD/.env" 2>/dev/null
     fi
-    docker exec -ti $NAME $EXEC
+fi
+
+# Load the .env file if it exists
+[ -f "$PWD/.env" ] && . "$PWD/.env"
+
+# Set the name and default exec command
+NAME=${POD_NAME:-$(basename "$PWD")}
+EXEC=${EXEC_COMMAND:-"sh"}
+
+# Action functions
+action_docker() {
+    wget a.zzci.cc/tpl/docker-compose.yml
 }
 
-[ "$1" = "run" ] && {
-    docker rm -f $NAME
-    docker run -tid -v $PWD/work:/work --hostname $NAME --name  $NAME $NAME
-    if [ "$2" != "" ]; then
-        docker exec -ti $NAME $2
-    fi
+action_build() {
+    docker build --rm -t "$NAME" .
 }
 
-[ "$1" = "pack" ] && {
+action_pack() {
     docker save $NAME | gzip > $NAME.gz
 }
 
-exit 0
+action_rm() {
+    docker compose down
+}
+
+action_restart() {
+    docker compose restart
+}
+
+action_exec() {
+    [ -n "$1" ] && EXEC="$1"
+    docker compose exec -ti app "$EXEC"
+}
+
+action_run() {
+    docker compose down
+    docker compose up -d
+}
+
+action_help() {
+    echo "Usage: $0 <action> [args]"
+    echo ""
+    echo "Actions:"
+    echo "  docker   Download docker-compose.yml"
+    echo "  build    Build docker image"
+    echo "  pack     Export image to .gz archive"
+    echo "  run      Start services (down + up -d)"
+    echo "  rm       Stop and remove services"
+    echo "  restart  Restart services"
+    echo "  exec     Exec into app container (default: sh)"
+    echo "  help     Show this help message"
+}
+
+# Set the default action to "help" if none is provided
+action=${1:-help}
+if [ "$#" -gt 1 ]; then
+  shift
+fi
+
+# Function to check if a function exists
+function_exists() {
+    type "$1" >/dev/null 2>&1
+}
+
+# Call the action function if it exists, otherwise show an error
+if function_exists "action_$action"; then
+    "action_$action" "$@"
+else
+    echo "Error: Unknown action: '$action'"
+    echo ""
+    action_help
+    exit 1
+fi
