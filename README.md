@@ -72,6 +72,101 @@ Behavior:
 RUN /build/bin/create_user app app 1000 1000
 ```
 
+## Init system (inherited from `zzci/init`)
+
+ubase uses `tini` (PID 1) + `supervisord` (process manager) + `busybox` from `zzci/init`. The default `CMD` is `/start.sh`, which loads service templates and hands off to supervisord.
+
+### Adding service definitions
+
+Drop supervisord-format `.conf` files into one of:
+
+| Path | When | Purpose |
+|------|------|---------|
+| `/build/services/` | image build time | bundled templates |
+| `/work/.init/services/` | runtime mount | extra/override templates |
+
+Example `web.conf`:
+
+```ini
+[program:web]
+command=/usr/bin/myserver
+autostart=true
+autorestart=true
+```
+
+Files in `services/` are **templates** — they must be enabled before supervisord runs them.
+
+### Enabling services
+
+Three ways, combinable.
+
+**1. `ZSRV_*` environment variables**
+
+```yaml
+environment:
+  ZSRV_web: true        # enable web.conf
+  ZSRV_redis: false     # skip (keep var for easy debug toggle)
+  ZSRV_HTTP: web-http   # value used as service name (for names with -, .)
+```
+
+| Value | Behavior |
+|-------|----------|
+| empty / `true` / `1` / `yes` / `on` | enable, service name = suffix after `ZSRV_` |
+| `false` / `0` / `no` / `off` | disable: move `run/<name>.conf` to `run/.disabled/<name>.conf` |
+| any other string | enable, value used as service name (for names with `-`, `.`) |
+
+**2. `/work/.init/init.sh`** — shell hook run before supervisord starts:
+
+```sh
+#!/bin/sh
+sctl enable web
+[ "$ENABLE_REDIS" = "1" ] && sctl enable redis
+```
+
+**3. Pre-baked `run/` dir** — mount or `ADD` `.conf` files directly to `/work/.init/services/run/`; they skip the enable step.
+
+### Runtime control with `sctl`
+
+```bash
+sctl start    <name>
+sctl stop     <name>
+sctl restart  <name>
+sctl enable   <name>
+sctl disable  <name>
+sctl show     <name>
+```
+
+### File layout
+
+```
+/.init/
+  init.conf          # supervisord main config (default; override at /work/.init/init.conf)
+  services/
+    run/             # enabled services (loaded by supervisord)
+/build/
+  services/          # build-time bundled templates (optional)
+  bin/
+    tini
+    supervisord
+    sctl
+    busybox/         # busybox applets
+    create_user      # ubase helper
+/work/.init/         # user mount point
+  init.conf          # optional override
+  init.sh            # optional pre-start hook
+  services/          # additional templates or direct run/ overrides
+```
+
+### Example: bake an app + service
+
+```dockerfile
+FROM zzci/ubase
+COPY --from=builder /out/myserver /usr/bin/myserver
+COPY web.conf /build/services/
+ENV ZSRV_web=true
+CMD ["/start.sh"]
+```
+
 ## Environment
 
 | Variable | Value |
