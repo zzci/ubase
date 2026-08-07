@@ -12,7 +12,7 @@ https://hub.docker.com/r/zzci/ubase
 ubuntu:22.04
    + zzci/init           (busybox / tini / supervisord at /build/bin/)
    + apt packages        (see below)
-   + just                (1.47.1)
+   + just                (1.58.0)
    + locale en_US.UTF-8
    + rootfs              (helper scripts under /build/bin/)
 ```
@@ -33,7 +33,7 @@ ubuntu:22.04
 
 | Tool | Path | Source |
 |---|---|---|
-| `just` | `/usr/local/bin/just` | [casey/just](https://github.com/casey/just) v1.47.1 |
+| `just` | `/usr/local/bin/just` | [casey/just](https://github.com/casey/just) v1.58.0 |
 | `tini` | `/build/bin/tini` | from `zzci/init` |
 | `supervisord` | `/build/bin/supervisord` | from `zzci/init` |
 | `busybox` | `/build/bin/busybox/busybox` | from `zzci/init` (Alpine static) |
@@ -180,7 +180,7 @@ CMD ["/start.sh"]
 
 | Arg | Default | Purpose |
 |---|---|---|
-| `JUST_VERSION` | `1.47.1` | Pin `just` release |
+| `JUST_VERSION` | `1.58.0` | Pin `just` release |
 | `TARGETARCH` | (auto) | Used to pick `aarch64` vs `x86_64` for `just` |
 
 ## Usage

@@ -10,7 +10,7 @@ ENV PATH=$PATH:/build/bin:/build/bin/busybox:/work/bin \
 
 COPY --from=zzci/init / /
 
-ARG JUST_VERSION=1.47.1
+ARG JUST_VERSION=1.58.0
 ARG TARGETARCH
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
