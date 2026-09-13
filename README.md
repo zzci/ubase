@@ -1,6 +1,6 @@
 # ubase
 
-Base Docker image built on Ubuntu 22.04, layered on top of [zzci/init](https://hub.docker.com/r/zzci/init) (busybox + tini + supervisord).
+Base Docker image built on Ubuntu 24.04, layered on top of [zzci/init](https://hub.docker.com/r/zzci/init) (busybox + tini + supervisord).
 
 ## Docker Hub
 
@@ -9,7 +9,7 @@ https://hub.docker.com/r/zzci/ubase
 ## Image Stack
 
 ```
-ubuntu:22.04
+ubuntu:24.04
    + zzci/init           (busybox / tini / supervisord at /build/bin/)
    + apt packages        (see below)
    + just                (1.58.0)
@@ -21,7 +21,7 @@ ubuntu:22.04
 
 ## Included Packages
 
-### Apt packages (Ubuntu 22.04)
+### Apt packages (Ubuntu 24.04)
 
 | Category | Packages |
 |---|---|
